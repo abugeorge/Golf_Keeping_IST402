@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <style>
     :root { --bg:#0b1020; --card:#121a2f; --muted:#7b8ab0; --accent:#0ea5e9; --ring:#38bdf8; }
     *{box-sizing:border-box}
@@ -39,18 +40,18 @@
     .title{font-size:16px;font-weight:600;margin-bottom:10px}
 
     .tip-line {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  align-items: center;
-  line-height: 1.4;
-  margin-top: 8px;
-}
-.tip-line .chip { margin-left: 4px; }
-@media (max-width: 480px) {
-  .tip-line { flex-direction: column; align-items: flex-start; }
-  .tip-line .chip { margin-left: 0; }
-}
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      line-height: 1.4;
+      margin-top: 8px;
+    }
+    .tip-line .chip { margin-left: 4px; }
+    @media (max-width: 480px) {
+       .tip-line { flex-direction: column; align-items: flex-start; }
+       .tip-line .chip { margin-left: 0; }
+    }
 
 
     /* Score table */
@@ -72,6 +73,10 @@
     .footer{padding:12px 16px;color:#a7b6da;font-size:12px;display:flex;gap:8px;align-items:center}
     .link{color:#84d9ff;text-decoration:none}
     .kbd{border:1px solid rgba(255,255,255,.2);border-bottom-width:2px;padding:2px 6px;border-radius:6px;background:#0a1328}
+    input.hole-input {
+      font-size: 16px; /* prevents Safari from auto-zooming on focus */
+    }
+
   </style>
 </head>
 <body>
