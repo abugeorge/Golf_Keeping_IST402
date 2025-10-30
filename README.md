@@ -17,3 +17,8 @@ A simple mobile-friendly web app for keeping golf scores for 1–4 players.
 ---
 
 ## 🚀 Run Locally
+https://abugeorge.github.io/Golf_Keeping_IST402/
+
+ ```bash
+   git clone https://github.com/abugeorge/Golf_Keeping_IST402.git
+   cd Golf_Keeping_IST402
