@@ -38,6 +38,21 @@
     .section{padding:16px}
     .title{font-size:16px;font-weight:600;margin-bottom:10px}
 
+    .tip-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  line-height: 1.4;
+  margin-top: 8px;
+}
+.tip-line .chip { margin-left: 4px; }
+@media (max-width: 480px) {
+  .tip-line { flex-direction: column; align-items: flex-start; }
+  .tip-line .chip { margin-left: 0; }
+}
+
+
     /* Score table */
     .table-wrap{overflow:auto}
     table{width:max(640px,100%);border-collapse:separate;border-spacing:0}
@@ -117,10 +132,11 @@
         <table id="table"></table>
       </div>
 
-      <p class="muted" style="margin-top:8px">Tip: tap a cell and use the numeric keyboard. Long-press a filled cell to clear it.
-        <span class="chip">Auto totals</span>
-        <span class="chip">Local save</span>
-      </p>
+      <p class="muted tip-line">
+  <span>💡 Tip: tap a cell and use the numeric keyboard. Long-press a filled cell to clear it.</span>
+  <span class="chip">Auto totals</span>
+  <span class="chip">Local save</span>
+</p>
       <div class="row" style="margin-top:12px; justify-content:center">
         <button id="endGameBtn" class="btn primary">🏁 End Game</button>
       </div>
