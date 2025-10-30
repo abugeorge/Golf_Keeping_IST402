@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Golf Scorekeeper</title>
+  <meta name="theme-color" content="#0ea5e9" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg:#0b1020; --card:#121a2f; --muted:#7b8ab0; --accent:#0ea5e9; --ring:#38bdf8; }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;background:linear-gradient(180deg,#0b1020,#0e1426 30%, #0b1020);color:#e6eefc}
+    .wrap{max-width:980px;margin:0 auto;padding:16px}
+    .card{background:var(--card);border:1px solid rgba(255,255,255,.06);border-radius:16px;box-shadow:0 8px 30px rgba(2,6,23,.35);overflow:hidden}
+    header{position:sticky;top:0;z-index:10;background:rgba(11,16,32,.8);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,.06)}
+    header .bar{display:flex;align-items:center;gap:8px;max-width:980px;margin:0 auto;padding:10px 16px}
+    h1{font-size:18px;margin:0;font-weight:600;letter-spacing:.3px}
+    .pill{padding:4px 10px;border:1px solid rgba(255,255,255,.08);border-radius:999px;color:#cfe4ff;font-size:12px}
+    .grid{display:grid;gap:12px}
+    .grid.two{grid-template-columns:1fr}
+    @media(min-width:680px){.grid.two{grid-template-columns:1fr 1fr}}
+    .btn{appearance:none;border:none;border-radius:12px;padding:12px 14px;background:#1a2442;color:#e6eefc;font-weight:600;cursor:pointer}
+    .btn:hover{background:#202d52}
+    .btn.primary{background:var(--accent);color:#001b2a}
+    .btn.primary:hover{background:#38bdf8}
+    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,.12)}
+    .btn.sm{padding:8px 10px;border-radius:10px;font-size:13px}
+    .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .field{display:grid;gap:6px}
+    label{font-size:13px;color:#c9d8ff}
+    input, select{width:100%;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:#0f162b;color:#e6eefc}
+    input[type=number]{appearance:textfield}
+    input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{appearance:none;margin:0}
+    .muted{color:var(--muted);font-size:13px}
+    .section{padding:16px}
+    .title{font-size:16px;font-weight:600;margin-bottom:10px}
+
+    /* Score table */
+    .table-wrap{overflow:auto}
+    table{width:max(640px,100%);border-collapse:separate;border-spacing:0}
+    th,td{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.08);text-align:center}
+    thead th{position:sticky;top:0;background:#101a33;border-bottom:1px solid rgba(255,255,255,.12);font-size:12px;color:#a9c2ff;z-index:5}
+    tbody tr:nth-child(even){background:rgba(255,255,255,.02)}
+    td:first-child, th:first-child{text-align:left;position:sticky;left:0;background:rgba(16,26,51,.9);backdrop-filter:blur(6px);z-index:4}
+    .total{font-weight:700;color:#e6ff8f}
+    .hole-input{width:56px;text-align:center}
+
+    .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .chip{font-size:12px;padding:6px 10px;border-radius:999px;background:#0f1a34;border:1px solid rgba(255,255,255,.1)}
+    .success{color:#b6ffb6}
+    .danger{color:#ff9aa2}
+    .warn{color:#ffe08a}
+    .spacer{flex:1}
+    .footer{padding:12px 16px;color:#a7b6da;font-size:12px;display:flex;gap:8px;align-items:center}
+    .link{color:#84d9ff;text-decoration:none}
+    .kbd{border:1px solid rgba(255,255,255,.2);border-bottom-width:2px;padding:2px 6px;border-radius:6px;background:#0a1328}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="bar">
+      <h1>🏌️ Golf Scorekeeper</h1>
+      <span id="status" class="pill">Ready</span>
+      <div class="spacer"></div>
+      <button id="wakeBtn" class="btn sm ghost" title="Prevent screen sleep during a round">Wake Lock: Off</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- SETUP CARD -->
+    <section id="setup" class="card section">
+      <div class="title">Start a Round</div>
+      <div class="grid two">
+        <div class="field">
+          <label for="holes">Holes</label>
+          <select id="holes">
+            <option value="9">9 holes</option>
+            <option value="18">18 holes</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="players">Players</label>
+          <select id="players">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4" selected>4</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="names" class="grid two" style="margin-top:12px"></div>
+
+      <div class="row" style="margin-top:12px">
+        <button id="startBtn" class="btn primary">Start Round</button>
+        <button id="resumeBtn" class="btn ghost" style="display:none">Resume Saved</button>
+        <span class="muted">Scores are saved automatically.</span>
+      </div>
+    </section>
+
+    <!-- SCORECARD CARD -->
+    <section id="scorecard" class="card section" style="display:none">
+      <div class="row" style="margin-bottom:8px">
+        <div class="title" id="roundTitle">Round</div>
+        <div class="spacer"></div>
+        <div class="toolbar">
+          <button id="undoBtn" class="btn sm" disabled>Undo</button>
+          <button id="clearBtn" class="btn sm ghost">Clear All</button>
+          <button id="resetBtn" class="btn sm danger" title="Reset everything and go back">Reset</button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table id="table"></table>
+      </div>
+
+      <p class="muted" style="margin-top:8px">Tip: tap a cell and use the numeric keyboard. Long-press a filled cell to clear it.
+        <span class="chip">Auto totals</span>
+        <span class="chip">Local save</span>
+      </p>
+    </section>
+
+    <!-- HELP -->
+    <section class="footer">
+      <span class="kbd">Undo</span> reverts the last change. <span class="kbd">Clear All</span> erases scores but keeps players. <span class="kbd">Reset</span> returns to setup.
+    </section>
+  </main>
+
+  <script>
+  // --- State ---
+  const state = {
+    holes: 9,
+    players: 4,
+    names: ["Player 1","Player 2","Player 3","Player 4"],
+    scores: {}, // {playerIndex: {holeIndex: number}}
+    history: [] // stack of {p,h,prev,new}
+  };
+  const LS_KEY = 'golf-scorekeeper-v1';
+
+  function save() {
+    localStorage.setItem(LS_KEY, JSON.stringify(state));
+    setStatus('Saved');
+  }
+  function load() {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return false;
+    try {
+      const s = JSON.parse(raw);
+      Object.assign(state, s);
+      return true;
+    } catch { return false; }
+  }
+  function setStatus(msg){
+    const el = document.getElementById('status');
+    el.textContent = msg;
+    el.classList.add('success');
+    setTimeout(()=>{ el.classList.remove('success'); el.textContent='Ready'; }, 900);
+  }
+
+  // --- Setup UI ---
+  const holesSel = document.getElementById('holes');
+  const playersSel = document.getElementById('players');
+  const namesDiv = document.getElementById('names');
+  const startBtn = document.getElementById('startBtn');
+  const resumeBtn = document.getElementById('resumeBtn');
+
+  function renderNameFields(){
+    namesDiv.innerHTML = '';
+    const count = +playersSel.value;
+    for (let i=0;i<count;i++){
+      const wrap = document.createElement('div');
+      wrap.className = 'field';
+      const id = `name-${i}`;
+      wrap.innerHTML = `<label for="${id}">Player ${i+1} name</label>
+        <input id="${id}" value="${state.names[i]||`Player ${i+1}`}" maxlength="20" placeholder="Player ${i+1}">`;
+      namesDiv.appendChild(wrap);
+    }
+  }
+
+  playersSel.addEventListener('change', renderNameFields);
+  renderNameFields();
+
+  // If there is saved state, allow resume
+  if (load()) {
+    holesSel.value = String(state.holes);
+    playersSel.value = String(state.players);
+    renderNameFields();
+    state.names.forEach((n,i)=>{
+      const el = document.getElementById(`name-${i}`);
+      if (el) el.value = n;
+    });
+    resumeBtn.style.display = 'inline-flex';
+  }
+
+  resumeBtn.addEventListener('click', ()=>{
+    document.getElementById('setup').style.display='none';
+    document.getElementById('scorecard').style.display='block';
+    buildTable();
+  });
+
+  startBtn.addEventListener('click', ()=>{
+    state.holes = +holesSel.value;
+    state.players = +playersSel.value;
+    state.names = Array.from({length: state.players}, (_,i)=>{
+      const el = document.getElementById(`name-${i}`);
+      return (el && el.value.trim()) || `Player ${i+1}`;
+    });
+    state.scores = {};
+    state.history = [];
+    save();
+
+    document.getElementById('setup').style.display='none';
+    document.getElementById('scorecard').style.display='block';
+    buildTable();
+  });
+
+  // --- Table / Scoring ---
+  const tableEl = document.getElementById('table');
+  const undoBtn = document.getElementById('undoBtn');
+  const clearBtn = document.getElementById('clearBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const roundTitle = document.getElementById('roundTitle');
+
+  function buildTable(){
+    roundTitle.textContent = `${state.holes}-Hole Round`;
+    const cols = state.holes + 2; // name + holes + total
+    const thead = document.createElement('thead');
+    const hrow = document.createElement('tr');
+    hrow.appendChild(th('Player'));
+    for(let h=1; h<=state.holes; h++) hrow.appendChild(th(String(h)));
+    hrow.appendChild(th('Total'));
+    thead.appendChild(hrow);
+
+    const tbody = document.createElement('tbody');
+    for (let p=0; p<state.players; p++){
+      const tr = document.createElement('tr');
+      const name = state.names[p] || `Player ${p+1}`;
+      tr.appendChild(td(`<strong>${escapeHtml(name)}</strong>`));
+
+      for (let h=1; h<=state.holes; h++){
+        const val = getScore(p,h) ?? '';
+        const cell = document.createElement('td');
+        const input = document.createElement('input');
+        input.className = 'hole-input';
+        input.type = 'text';
+        input.inputMode = 'numeric';
+        input.pattern = '[0-9]*';
+        input.maxLength = 2;
+        input.value = val;
+        input.dataset.p = p;
+        input.dataset.h = h;
+        input.title = `P${p+1} • Hole ${h}`;
+        input.addEventListener('input', onScoreInput);
+        input.addEventListener('contextmenu', e=> e.preventDefault());
+        input.addEventListener('pointerdown', (e)=>{
+          // Long-press clear
+          let t = setTimeout(()=>{ setScore(p,h, null, true); input.value=''; }, 520);
+          const stop=()=>{ clearTimeout(t); input.removeEventListener('pointerup', stop); input.removeEventListener('pointerleave', stop)};
+          input.addEventListener('pointerup', stop);
+          input.addEventListener('pointerleave', stop);
+        });
+        cell.appendChild(input);
+        tr.appendChild(cell);
+      }
+
+      const tot = document.createElement('td');
+      tot.id = `total-${p}`;
+      tot.className = 'total';
+      tot.textContent = sumPlayer(p);
+      tr.appendChild(tot);
+      tbody.appendChild(tr);
+    }
+
+    tableEl.innerHTML = '';
+    tableEl.appendChild(thead);
+    tableEl.appendChild(tbody);
+    updateUndoState();
+  }
+
+  function th(txt){ const e=document.createElement('th'); e.textContent=txt; return e; }
+  function td(html){ const e=document.createElement('td'); e.innerHTML=html; return e; }
+  function escapeHtml(s){ return s.replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c])); }
+
+  function getScore(p,h){ return state.scores?.[p]?.[h] ?? null; }
+  function setScore(p,h,val, fromLongPress=false){
+    const prev = getScore(p,h);
+    if (val === '' || val === null){
+      if (prev !== null){
+        if (!fromLongPress) state.history.push({p,h,prev,new:null});
+        state.scores[p] && delete state.scores[p][h];
+      }
+    } else {
+      const num = Math.max(0, Math.min(99, parseInt(val,10) || 0));
+      if (!state.scores[p]) state.scores[p] = {};
+      state.history.push({p,h,prev,new:num});
+      state.scores[p][h] = num;
+    }
+    document.getElementById(`total-${p}`).textContent = sumPlayer(p);
+    updateUndoState();
+    save();
+  }
+  function sumPlayer(p){
+    const map = state.scores?.[p] || {};
+    let s = 0; for (const k in map){ const v = map[k]; if (typeof v === 'number') s += v; }
+    return s;
+  }
+
+  function onScoreInput(e){
+    const inp = e.target;
+    const p = +inp.dataset.p; const h = +inp.dataset.h;
+    // accept only digits
+    inp.value = inp.value.replace(/[^0-9]/g,'');
+    setScore(p,h, inp.value);
+  }
+
+  // Undo / Clear / Reset
+  undoBtn.addEventListener('click', ()=>{
+    const last = state.history.pop();
+    if (!last) return;
+    const {p,h,prev} = last;
+    if (!state.scores[p]) state.scores[p] = {};
+    if (prev === null || prev === undefined){ delete state.scores[p][h]; }
+    else { state.scores[p][h] = prev; }
+    const input = tableEl.querySelector(`input[data-p='${p}'][data-h='${h}']`);
+    if (input) input.value = prev ?? '';
+    document.getElementById(`total-${p}`).textContent = sumPlayer(p);
+    updateUndoState();
+    save();
+  });
+  function updateUndoState(){ undoBtn.disabled = state.history.length === 0; }
+
+  clearBtn.addEventListener('click', ()=>{
+    if (!confirm('Clear all scores? Players and holes will remain.')) return;
+    state.scores = {}; state.history = []; save(); buildTable();
+  });
+  resetBtn.addEventListener('click', ()=>{
+    if (!confirm('Reset and go back to setup? This will erase current scores.')) return;
+    state.scores = {}; state.history = []; save();
+    document.getElementById('scorecard').style.display='none';
+    document.getElementById('setup').style.display='block';
+  });
+
+  // --- Wake Lock (prevent sleep) ---
+  let wakeLock = null;
+  const wakeBtn = document.getElementById('wakeBtn');
+  async function requestWakeLock(){
+    try{
+      wakeLock = await navigator.wakeLock.request('screen');
+      wakeBtn.textContent = 'Wake Lock: On';
+      wakeBtn.classList.add('success');
+      wakeLock.addEventListener('release', ()=>{
+        wakeBtn.textContent = 'Wake Lock: Off';
+        wakeBtn.classList.remove('success');
+      });
+    }catch(err){
+      alert('Wake Lock not available on this browser. The screen may dim during long rounds.');
+    }
+  }
+  wakeBtn.addEventListener('click', ()=>{
+    if (!wakeLock) requestWakeLock(); else { wakeLock.release(); wakeLock=null; }
+  });
+  document.addEventListener('visibilitychange', ()=>{ if (wakeLock && document.visibilityState==='visible') requestWakeLock(); });
+
+  // Build immediately if we resumed via deep state
+  if (document.getElementById('scorecard').style.display==='block'){ buildTable(); }
+
+  </script>
+</body>
+</html>
