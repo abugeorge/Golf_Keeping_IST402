@@ -34,4 +34,4 @@ or to run on Mobile.
 ---
 
 ## 🧠 AI Notes
-See Golf_Keeping_IST402/ai-notes.md to see how AI was utilized for this project
+See [ai-notes.md](./ai-notes.md) to see how AI was utilized for this project
