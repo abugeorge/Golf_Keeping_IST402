@@ -1,6 +1,8 @@
 # 🏌️ Golf Scorekeeper
 
 A simple mobile-friendly web app for keeping golf scores for 1–4 players.
+By: Haroun Ramadan
+PSU-AB IST 402
 
 ---
 
