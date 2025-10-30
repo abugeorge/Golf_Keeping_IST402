@@ -121,6 +121,17 @@
         <span class="chip">Auto totals</span>
         <span class="chip">Local save</span>
       </p>
+      <div class="row" style="margin-top:12px; justify-content:center">
+        <button id="endGameBtn" class="btn primary">🏁 End Game</button>
+      </div>
+
+<!-- Results Modal -->
+<div id="resultsModal" class="card section" style="display:none; text-align:center; margin-top:16px">
+  <h2>🏆 Final Results</h2>
+  <p id="resultsText"></p>
+  <button id="newRoundBtn" class="btn ghost" style="margin-top:8px">Start New Round</button>
+</div>
+
     </section>
 
     <!-- HELP -->
@@ -366,6 +377,52 @@
 
   // Build immediately if we resumed via deep state
   if (document.getElementById('scorecard').style.display==='block'){ buildTable(); }
+// --- End Game Logic ---
+const endBtn = document.getElementById('endGameBtn');
+const resultsModal = document.getElementById('resultsModal');
+const resultsText = document.getElementById('resultsText');
+const newRoundBtn = document.getElementById('newRoundBtn');
+
+endBtn.addEventListener('click', () => {
+  // Check if all scores are filled
+  const totalCells = state.players * state.holes;
+  const filled = Object.values(state.scores)
+    .reduce((sum, holes) => sum + Object.keys(holes || {}).length, 0);
+
+  if (filled < totalCells) {
+    alert('Please fill in all hole scores before ending the game.');
+    return;
+  }
+
+  // Compute totals
+  const totals = state.names.map((name, i) => ({
+    name,
+    score: sumPlayer(i)
+  }));
+
+  const minScore = Math.min(...totals.map(t => t.score));
+  const winners = totals.filter(t => t.score === minScore);
+
+  let msg;
+  if (winners.length === 1) {
+    msg = `🏆 <strong>${winners[0].name}</strong> wins with a score of <strong>${minScore}</strong>!`;
+  } else {
+    msg = `🤝 It's a tie between ${winners.map(w => `<strong>${w.name}</strong>`).join(', ')} — all with <strong>${minScore}</strong>!`;
+  }
+
+  resultsText.innerHTML = msg;
+  resultsModal.style.display = 'block';
+  window.scrollTo({ top: resultsModal.offsetTop, behavior: 'smooth' });
+});
+
+newRoundBtn.addEventListener('click', () => {
+  resultsModal.style.display = 'none';
+  document.getElementById('scorecard').style.display = 'none';
+  document.getElementById('setup').style.display = 'block';
+  state.scores = {};
+  state.history = [];
+  save();
+});
 
   </script>
 </body>
